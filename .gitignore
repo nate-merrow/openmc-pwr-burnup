@@ -1,0 +1,8 @@
+# .gitignore
+*.h5
+*.xml
+*.png
+__pycache__/
+output/
+*.pyc
+
