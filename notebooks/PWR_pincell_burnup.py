@@ -30,18 +30,6 @@ materials = openmc.Materials([uo2, zirconium, water])
 materials.export_to_xml()
 
 ##############################################
-                # Fuel Volume #
-##############################################
-
-import math
-
-fuel_radius = 0.4096  # radius of fuel pellet in cm
-fuel_height = 100.0   # height of the fuel pin cell in cm (adjust if needed)
-
-fuel_volume = math.pi * fuel_radius**2 * fuel_height
-uo2.volume = fuel_volume
-
-##############################################
                 # Geometry #
 ##############################################
 
@@ -89,11 +77,11 @@ geometry.export_to_xml()
 ##############################################
 
 settings = openmc.Settings()
-settings.batches = 150
+settings.batches = 100
 settings.inactive = 50
-settings.particles = 5000
+settings.particles = 1000
 settings.source = openmc.IndependentSource(space=openmc.stats.Point((0,0,0)))
-settings.verbosity = 4
+settings.verbosity = 5
 
 settings.export_to_xml()
 
@@ -104,11 +92,11 @@ settings.export_to_xml()
 from openmc.deplete import Operator, PredictorIntegrator
 import openmc
 
-openmc.config['chain_file'] = '/home/natem/openmc/examples/pincell_depletion/chain_simple.xml'
+openmc.config['chain_file'] = '/home/natem/Projects/openmc-pwr-burnup/chain_endfb71_pwr.xml'
 
 model = openmc.model.Model(geometry, materials, settings)
-power_density = 37
-power = power_density * uo2.volume
+
+from config import power
 
 operator = Operator(model)
 timesteps = [24*60*60*2] * 5
@@ -134,26 +122,3 @@ tallies.export_to_xml()
 ##############################################
 
 openmc.run()
-
-##############################################
-                # Plots #
-##############################################
-
-import openmc.deplete
-from openmc.deplete import ResultsList
-from openmc.deplete.analysis import plot_materials
-import matplotlib.pyplot as plt
-
-results = openmc.deplete.ResultsList.from_hdf5("depletion_results.h5")
-
-results.plot_materials('uo2', ['U235', 'U238'], ylabel='Atom Fraction')
-plt.savefig("atom_fraction.png")
-plt.show()
-
-
-
-
-
-
-
-
